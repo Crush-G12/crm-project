@@ -14,7 +14,44 @@
 		//使用id选择器，给登录按钮绑定单击事件
 		$("#loginBtn").click(function (){
 			//发请求，先获取页面的参数
-
+			var loginAct = $.trim($("#loginAct").val());
+			var loginPwd = $.trim($("#loginPwd").val());
+			//prop获取元素指定的属性值（true/false）
+			var isRem = $("#isRem").prop("checked");
+			//验证账号和密码不为空
+			if(loginAct == ""){
+				alert("用户名不能为空");
+				return;
+			}
+			if(loginPwd == ""){
+				alert("密码不能为空");
+				return;
+			}
+			//向后台发送异步请求
+			$.ajax({
+				//发送的地址
+				url:'settings/qx/user/login',
+				//传输的数据
+				data:{
+					loginAct:loginAct,
+					loginPwd:loginPwd,
+					isRem:isRem
+				},
+				//请求方式
+				type:'post',
+				//响应信息的类型
+				dataType:'json',
+				//回调函数处理响应，data接收后台的响应信息
+				success:function (data){
+					if(data.code == "1"){
+						//登陆成功，跳转到业务主页面
+						window.location.href = "/crm/workbench/index";
+					}else {
+						//登录失败，提示错误信息
+						$("#msg").html(data.message);
+					}
+				}
+			});
 		});
 	});
 </script>
@@ -35,14 +72,14 @@
 			<form action="workbench/index.html" class="form-horizontal" role="form">
 				<div class="form-group form-group-lg">
 					<div style="width: 350px;">
-						<input class="form-control" type="text" placeholder="用户名">
+						<input id="loginAct" class="form-control" type="text" placeholder="用户名">
 					</div>
 					<div style="width: 350px; position: relative;top: 20px;">
-						<input class="form-control" type="password" placeholder="密码">
+						<input id="loginPwd" class="form-control" type="password" placeholder="密码">
 					</div>
 					<div class="checkbox"  style="position: relative;top: 30px; left: 10px;">
 						<label>
-							<input type="checkbox"> 十天内免登录
+							<input id="isRem" type="checkbox"> 十天内免登录
 						</label>
 						&nbsp;&nbsp;
 						<span id="msg"></span>

@@ -1,6 +1,8 @@
 package com.xie.crm.settings.web.controller;
 
+import com.xie.crm.commons.contants.Contants;
 import com.xie.crm.commons.domain.ReturnObject;
+import com.xie.crm.commons.utils.DateUtils;
 import com.xie.crm.settings.domain.User;
 import com.xie.crm.settings.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +36,7 @@ public class UserController {
 
     @RequestMapping(value = "/settings/qx/user/login")
     @ResponseBody
-    public Object login(String loginAct, String loginPwd, String isRemPwd, HttpServletRequest request){
+    public Object login(String loginAct, String loginPwd, String isRem, HttpServletRequest request){
         //@ResponseBody:将要返回的数据封装成java对象后，@ResponseBody会
         // 将java对象转为json格式的数据,虽然返回值是Object，但返回时会返回实际的数据类型json（多态性）
         //将前端传来的参数封装好
@@ -47,28 +49,27 @@ public class UserController {
         ReturnObject returnObject = new ReturnObject();
         if(user == null){
             //用户名或密码有误
-            returnObject.setCode("0");
+            returnObject.setCode(Contants.CODE_FAIL);
             returnObject.setMessage("用户名或密码错误");
         }else {
             //账号和密码正确，判断账号是否过期
             String expireTime = user.getExpireTime();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String format = dateFormat.format(new Date());
+            String format = DateUtils.formatDateTime(new Date());
             if(expireTime.compareTo(format) < 0){
                 //小于0说明前者比后者小,说明账号已经过期
-                returnObject.setCode("0");
+                returnObject.setCode(Contants.CODE_FAIL);
                 returnObject.setMessage("账号已经过期");
             }else if(user.getLockState().equals("0")){
                 //若是0，说明账号被锁定
-                returnObject.setCode("0");
+                returnObject.setCode(Contants.CODE_FAIL);
                 returnObject.setMessage("账号被锁定");
             }else if(!user.getAllowIps().contains(request.getRemoteAddr())){
                 //如果不是用户的常用地址，也不允许登录
-                returnObject.setCode("0");
+                returnObject.setCode(Contants.CODE_FAIL);
                 returnObject.setMessage("ip地址受限制");
             }else{
                 //登录成功
-                returnObject.setCode("1");
+                returnObject.setCode(Contants.CODE_SUCCESS);
             }
         }
         //@ResponseBody会将java对象转为json格式的数据，返回给浏览器
