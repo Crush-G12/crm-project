@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,7 +37,7 @@ public class UserController {
 
     @RequestMapping(value = "/settings/qx/user/login")
     @ResponseBody
-    public Object login(String loginAct, String loginPwd, String isRem, HttpServletRequest request){
+    public Object login(String loginAct, String loginPwd, String isRem, HttpServletRequest request, HttpSession httpSession){
         //@ResponseBody:将要返回的数据封装成java对象后，@ResponseBody会
         // 将java对象转为json格式的数据,虽然返回值是Object，但返回时会返回实际的数据类型json（多态性）
         //将前端传来的参数封装好
@@ -70,6 +71,8 @@ public class UserController {
             }else{
                 //登录成功
                 returnObject.setCode(Contants.CODE_SUCCESS);
+                //保存到Session域
+                httpSession.setAttribute(Contants.SESSION_USER,user);
             }
         }
         //@ResponseBody会将java对象转为json格式的数据，返回给浏览器

@@ -8,4 +8,7 @@ public class Contants {
     //定义常量的值:1表示成功，0表示失败
     public static final String CODE_SUCCESS = "1";
     public static final String CODE_FAIL = "0";
+
+    //当前用户的key
+    public static final String SESSION_USER = "sessionUser";
 }
