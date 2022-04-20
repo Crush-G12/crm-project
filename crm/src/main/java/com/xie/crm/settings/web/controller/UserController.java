@@ -10,7 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,7 +39,7 @@ public class UserController {
 
     @RequestMapping(value = "/settings/qx/user/login")
     @ResponseBody
-    public Object login(String loginAct, String loginPwd, String isRem, HttpServletRequest request, HttpSession httpSession){
+    public Object login(String loginAct, String loginPwd, String isRem, HttpServletRequest request, HttpSession httpSession,HttpServletResponse response){
         //@ResponseBody:将要返回的数据封装成java对象后，@ResponseBody会
         // 将java对象转为json格式的数据,虽然返回值是Object，但返回时会返回实际的数据类型json（多态性）
         //将前端传来的参数封装好
@@ -73,10 +75,50 @@ public class UserController {
                 returnObject.setCode(Contants.CODE_SUCCESS);
                 //保存到Session域
                 httpSession.setAttribute(Contants.SESSION_USER,user);
+                //点击记住密码，就将账号密码保存到Cookie中
+                if(isRem.equals("true")){
+                    //新建Cookie
+                    Cookie cookie1 = new Cookie("loginAct", loginAct);
+                    Cookie cookie2 = new Cookie("loginPwd", loginPwd);
+                    //10天免登录
+                    cookie1.setMaxAge(10 * 24 * 60 * 60);
+                    cookie2.setMaxAge(10 * 24 * 60 * 60);
+                    //使用HttpServletResponse向页面返回数据
+                    response.addCookie(cookie1);
+                    response.addCookie(cookie2);
+                }else {
+                    //删除Cookie
+                    Cookie cookie1 = new Cookie("loginAct", "0");
+                    Cookie cookie2 = new Cookie("loginPwd", "0");
+                    cookie1.setMaxAge(0);
+                    cookie2.setMaxAge(0);
+                    response.addCookie(cookie1);
+                    response.addCookie(cookie2);
+                }
             }
         }
         //@ResponseBody会将java对象转为json格式的数据，返回给浏览器
         return returnObject;
     }
+
+    /**
+     * 安全退出
+     * @return
+     */
+    @RequestMapping("/settings/qx/user/logout")
+    public String logout(HttpServletResponse response,HttpSession session){
+        //清空Cookie
+        Cookie cookie1 = new Cookie("loginAct", "0");
+        Cookie cookie2 = new Cookie("loginPwd", "0");
+        cookie1.setMaxAge(0);
+        cookie2.setMaxAge(0);
+        response.addCookie(cookie1);
+        response.addCookie(cookie2);
+        //销毁Session
+        session.invalidate();
+        //重定向跳转到首页
+        return "redirect:/";
+    }
+
 
 }
