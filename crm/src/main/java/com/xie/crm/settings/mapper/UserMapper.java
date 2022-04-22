@@ -2,6 +2,7 @@ package com.xie.crm.settings.mapper;
 
 import com.xie.crm.settings.domain.User;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserMapper {
@@ -58,6 +59,12 @@ public interface UserMapper {
      * @return
      */
     User selectUserByLoginActAndPwd(Map<String,Object> map);
+
+    /**
+     * 获取所有用户
+     * @return
+     */
+    List<User> selectAllUsers();
 
 
 }
