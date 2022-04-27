@@ -211,4 +211,52 @@
     #{createTime,jdbcType=CHAR}, #{createBy,jdbcType=VARCHAR})
   </insert>
 
+  <select id="selectActivityByConditionForPage" parameterType="map" resultMap="BaseResultMap">
+    select a.id,b.name as owner,a.name,a.start_date,a.end_date,a.cost,
+           a.description,c.name as create_by,a.create_by,a.edit_time,c.name as edit_by
+    from tbl_activity a
+    join tbl_user b on a.owner = b.id
+    join tbl_user c on a.create_by = c.id
+    left join tbl_user d on a.edit_by = d.id
+    <where>
+      <if test="name != null and name != ''">
+        and a.name like '%' #{name} '%'
+      </if>
+      <if test="owner != null and owner != ''">
+        and b.name like '%' #{owner} '%'
+      </if>
+      <if test="startDate != null and startDate != ''">
+        and a.start_date >= #{startDate}
+      </if>
+      <if test="endDate != null and endDate != ''">
+        and a.end_date &lt;= #{endDate}
+      </if>
+    </where>
+    order by a.create_time desc
+    limit #{beginNo},#{pageSize}
+  </select>
+  
+  
+  <select id="selectCountOfActivityByCondition" parameterType="map" resultType="int">
+    select count(*)
+    from tbl_activity a
+    join tbl_user b on a.owner = b.id
+    join tbl_user c on a.create_by = c.id
+    left join tbl_user d on a.edit_by = d.id
+    <where>
+      <if test="name != null and name != ''">
+        and a.name like '%' #{name} '%'
+      </if>
+      <if test="owner != null and owner != ''">
+        and b.name like '%' #{owner} '%'
+      </if>
+      <if test="startDate != null and startDate != ''">
+        and a.start_date >= #{startDate}
+      </if>
+      <if test="endDate != null and endDate != ''">
+        and a.end_date &lt;= #{endDate}
+      </if>
+    </where>
+  </select>
+
 </mapper>

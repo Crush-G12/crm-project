@@ -13,6 +13,7 @@
 
 <script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+<%--bootStrap日期插件--%>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 
@@ -21,6 +22,8 @@
 	$(function(){
 		//给创建按钮绑定单击事件
 		$("#createActivity_btn").click(function (){
+			//清空表单
+			$("#createActivityForm").get(0).reset();
 			//弹出模态窗口
 			$("#createActivityModal").modal("show");
 		});
@@ -85,6 +88,69 @@
 
 		});
 	});
+
+	<%--入口函数——页面加载完成后执行--%>
+	$(function (){
+		//使用类的选择器
+		$(".addDate").datetimepicker({
+			//通过参数控制日历的显示效果
+			language:'zh-CN',
+			//生成的日期格式
+			format:'yyyy-mm-dd',
+			//显示到‘日’即可
+			minView:'month',
+			//初始化日期
+			initialDate:new Date(),
+			//自动关闭日历
+			autoclose:true,
+			//选择当天的日期
+			todayBtn:true,
+			//显示清空按钮
+			clearBtn:true
+		});
+
+
+		//查询所有数据的第一页和数据的总条数
+		//收集参数
+		var name = $("#name_for_query").val();
+		var owner = $("#owner_for_query").val();
+		var startDate = $("#startDate_for_query").val();
+		var endDate = $("#endDate_for_query").val();
+		//默认情况的页码
+		var pageNo = 1;
+		var pageSize = 10;
+		//发送请求
+		$.ajax({
+			url:'/crm/workbench/activity/queryActivityByConditionForPage',
+			data:{
+				name:name,owner:owner,startDate:startDate,
+				endDate:endDate,pageNo:pageNo,pageSize:pageSize
+			},
+			type:'post',
+			dataType:'json',
+			success:function (data){
+				//总条数
+				$("#pageTotalCount_for_query").text(data.totalCount);
+
+				//市场活动列表
+				var str = "";
+				$.each(data.activityList,function (index,obj){
+					str += "<tr class=\"active\">";
+					str += "<td><input type=\"checkbox\" value=\"" + obj.id + "\"/></td>";
+					str += "<td><a style=\"text-decoration: none; cursor: pointer;\" onclick=\"window.location.href='detail.html';\">"+ obj.name +"</a></td>";
+					str += "<td>"+ obj.owner +"</td>";
+					str += "<td>"+ obj.startDate +"</td>";
+					str += "<td>"+ obj.endDate +"</td>";
+					str += "</tr>";
+				});
+				//往tBody中显示数据
+				$("#tBody").html(str);
+			},
+			error:function (r){
+				console.log("出错了");
+			}
+		});
+	});
 	
 </script>
 </head>
@@ -102,7 +168,7 @@
 				</div>
 				<div class="modal-body">
 				
-					<form class="form-horizontal" role="form">
+					<form id="createActivityForm" class="form-horizontal" role="form">
 					
 						<div class="form-group">
 							<label for="create-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
@@ -122,11 +188,11 @@
 						<div class="form-group">
 							<label for="create-startDate" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="create-startDate">
+								<input type="text" class="form-control addDate" id="create-startDate" readonly>
 							</div>
 							<label for="create-endDate" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="create-endDate">
+								<input type="text" class="form-control addDate" id="create-endDate" readonly>
 							</div>
 						</div>
                         <div class="form-group">
@@ -274,14 +340,14 @@
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">名称</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="name_for_query">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">所有者</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="owner_for_query">
 				    </div>
 				  </div>
 
@@ -289,13 +355,13 @@
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">开始日期</div>
-					  <input class="form-control" type="text" id="startTime" />
+					  <input class="form-control" type="text" id="startDate_for_query" />
 				    </div>
 				  </div>
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">结束日期</div>
-					  <input class="form-control" type="text" id="endTime">
+					  <input class="form-control" type="text" id="endDate_for_query">
 				    </div>
 				  </div>
 				  
@@ -326,28 +392,28 @@
 							<td>结束日期</td>
 						</tr>
 					</thead>
-					<tbody>
-						<tr class="active">
-							<td><input type="checkbox" /></td>
-							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
-                            <td>zhangsan</td>
-							<td>2020-10-10</td>
-							<td>2020-10-20</td>
-						</tr>
-                        <tr class="active">
-                            <td><input type="checkbox" /></td>
-                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
-                            <td>zhangsan</td>
-                            <td>2020-10-10</td>
-                            <td>2020-10-20</td>
-                        </tr>
+					<tbody id="tBody">
+<%--						<tr class="active">--%>
+<%--							<td><input type="checkbox" /></td>--%>
+<%--							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
+<%--                            <td>zhangsan</td>--%>
+<%--							<td>2020-10-10</td>--%>
+<%--							<td>2020-10-20</td>--%>
+<%--						</tr>--%>
+<%--                        <tr class="active">--%>
+<%--                            <td><input type="checkbox" /></td>--%>
+<%--                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
+<%--                            <td>zhangsan</td>--%>
+<%--                            <td>2020-10-10</td>--%>
+<%--                            <td>2020-10-20</td>--%>
+<%--                        </tr>--%>
 					</tbody>
 				</table>
 			</div>
 			
 			<div style="height: 50px; position: relative;top: 30px;">
 				<div>
-					<button type="button" class="btn btn-default" style="cursor: default;">共<b>50</b>条记录</button>
+					<button type="button" class="btn btn-default" style="cursor: default;">共<b id="pageTotalCount_for_query">50</b>条记录</button>
 				</div>
 				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">
 					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>

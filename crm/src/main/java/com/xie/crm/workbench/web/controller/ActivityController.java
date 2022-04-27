@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class ActivityController {
@@ -65,6 +63,35 @@ public class ActivityController {
             returnObject.setMessage("系统繁忙，请稍后再试....");
         }
         return returnObject;
+    }
+
+    @RequestMapping(value = "/workbench/activity/queryActivityByConditionForPage")
+    @ResponseBody
+    public Object queryActivityByConditionForPage(String name,String owner,String startDate,
+                                                  String endDate,Integer pageNo,Integer pageSize){
+        //封装到Map里
+        Map<String,Object> map = new HashMap<>();
+        map.put("name",name);
+        map.put("owner",owner);
+        map.put("startDate",startDate);
+        map.put("endDate",endDate);
+        Integer beginNo;
+        if(pageNo != null && pageSize != null){
+            beginNo = (pageNo-1)*pageSize;
+        }else {
+            beginNo = null;
+        }
+        map.put("beginNo",beginNo);
+        map.put("pageSize",pageSize);
+        //查询数据
+        List<Activity> activityList = activityService.queryActivityByConditionForPage(map);
+        int totalCount = activityService.queryCountByConditionForPage(map);
+        //生成json字符串
+        Map<String,Object> resultMap = new HashMap<>();
+        resultMap.put("activityList",activityList);
+        resultMap.put("totalCount",totalCount);
+
+        return resultMap;
     }
 
 }
