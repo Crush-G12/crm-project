@@ -16,7 +16,10 @@
 <%--bootStrap日期插件--%>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
-
+<!--  PAGINATION 分页插件 -->
+<link rel="stylesheet" type="text/css" href="jquery/bs_pagination-master/css/jquery.bs_pagination.min.css">
+<script type="text/javascript" src="jquery/bs_pagination-master/js/jquery.bs_pagination.min.js"></script>
+<script type="text/javascript" src="jquery/bs_pagination-master/localization/en.js"></script>
 <script type="text/javascript">
 
 	$(function(){
@@ -76,7 +79,8 @@
 						//成功之后，关闭模态窗口
 						$("#createActivityModal").modal("hide");
 						//刷新市场活动
-
+						var pageSize = $("#pagination").bs_pagination('getOption','rowsPerPage');
+						queryActivityByConditionForPage(1,pageSize);
 					}else {
 						//失败之后，提示信息
 						alert(data.message);
@@ -111,14 +115,26 @@
 
 
 		//查询所有数据的第一页和数据的总条数
+		queryActivityByConditionForPage(1,10);
+
+		//给查询按钮绑定单击事件
+		$("#query_button").click(function (){
+			var pageSize = $("#pagination").bs_pagination('getOption','rowsPerPage');
+			queryActivityByConditionForPage(1,pageSize);
+		});
+
+
+	});
+
+	function queryActivityByConditionForPage(pageNo,pageSize){
 		//收集参数
 		var name = $("#name_for_query").val();
 		var owner = $("#owner_for_query").val();
 		var startDate = $("#startDate_for_query").val();
 		var endDate = $("#endDate_for_query").val();
 		//默认情况的页码
-		var pageNo = 1;
-		var pageSize = 10;
+		// var pageNo = 1;
+		// var pageSize = 10;
 		//发送请求
 		$.ajax({
 			url:'/crm/workbench/activity/queryActivityByConditionForPage',
@@ -130,7 +146,7 @@
 			dataType:'json',
 			success:function (data){
 				//总条数
-				$("#pageTotalCount_for_query").text(data.totalCount);
+				//$("#pageTotalCount_for_query").text(data.totalCount);
 
 				//市场活动列表
 				var str = "";
@@ -145,13 +161,40 @@
 				});
 				//往tBody中显示数据
 				$("#tBody").html(str);
+				//分页插件工具函数
+				var totalPages = 1;
+				if(data.totalCount % pageSize == 0){
+					totalPages = data.totalCount/pageSize;
+				}else{
+					totalPages = parseInt(data.totalCount/pageSize) + 1;
+				}
+				$("#pagination").bs_pagination({
+					currentPage:pageNo,//当前页号,相当于pageNo
+
+					rowsPerPage:pageSize,//每页显示条数,相当于pageSize
+					totalRows:data.totalCount,//总条数
+					totalPages: totalPages,  //总页数,必填参数.
+
+					visiblePageLinks:5,//最多可以显示的卡片数
+
+					showGoToPage:true,//是否显示"跳转到"部分,默认true--显示
+					showRowsPerPage:true,//是否显示"每页显示条数"部分。默认true--显示
+					showRowsInfo:true,//是否显示记录的信息，默认true--显示
+
+					//切换页号才会调用本函数（递归条件）
+					onChangePage: function(event,pageObj) { // returns page_num and rows_per_page after a link has clicked
+						//js代码
+						queryActivityByConditionForPage(pageObj.currentPage,pageObj.rowsPerPage);
+					}
+				});
 			},
 			error:function (r){
 				console.log("出错了");
 			}
 		});
-	});
-	
+	}
+
+
 </script>
 </head>
 <body>
@@ -365,7 +408,7 @@
 				    </div>
 				  </div>
 				  
-				  <button type="submit" class="btn btn-default">查询</button>
+				  <button type="button" class="btn btn-default" id="query_button">查询</button>
 				  
 				</form>
 			</div>
@@ -409,9 +452,10 @@
 <%--                        </tr>--%>
 					</tbody>
 				</table>
+				<div id="pagination"></div>
 			</div>
 			
-			<div style="height: 50px; position: relative;top: 30px;">
+			<%--<div style="height: 50px; position: relative;top: 30px;">
 				<div>
 					<button type="button" class="btn btn-default" style="cursor: default;">共<b id="pageTotalCount_for_query">50</b>条记录</button>
 				</div>
@@ -444,7 +488,7 @@
 						</ul>
 					</nav>
 				</div>
-			</div>
+			</div>--%>
 			
 		</div>
 		
