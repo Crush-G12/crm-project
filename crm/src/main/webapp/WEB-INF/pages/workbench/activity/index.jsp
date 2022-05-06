@@ -123,6 +123,32 @@
 			queryActivityByConditionForPage(1,pageSize);
 		});
 
+		//全选/取消全选
+		$("#select_checkbox").click(function (){
+			if(this.checked == true){
+				$("#tBody input[type = 'checkbox']").prop('checked',true);
+			}else{
+				$("#tBody input[type = 'checkbox']").prop('checked',false);
+			}
+		});
+
+        //对所以多选框加上单击事件
+        /*$("#tBody input[type = 'checkbox']").click(function (){
+            if($("#tBody input[type = 'checkbox']").size() == $("#tBody input[type = 'checkbox']:checked").size()){
+                $("#select_checkbox").prop('checked',true);
+            }else {
+                $("#select_checkbox").prop('checked',false);
+            }
+        });*/
+
+        //对所以多选框加上单击事件
+        $("#tBody").on("click","input[type = 'checkbox']",function (){
+            if($("#tBody input[type = 'checkbox']").size() == $("#tBody input[type = 'checkbox']:checked").size()){
+                $("#select_checkbox").prop('checked',true);
+            }else {
+                $("#select_checkbox").prop('checked',false);
+            }
+        })
 
 	});
 
@@ -161,6 +187,8 @@
 				});
 				//往tBody中显示数据
 				$("#tBody").html(str);
+                //每次查询之后取消全选
+                $("#select_checkbox").prop("checked",false);
 				//分页插件工具函数
 				var totalPages = 1;
 				if(data.totalCount % pageSize == 0){
@@ -428,7 +456,7 @@
 				<table class="table table-hover">
 					<thead>
 						<tr style="color: #B3B3B3;">
-							<td><input type="checkbox" /></td>
+							<td><input type="checkbox" id="select_checkbox"/></td>
 							<td>名称</td>
                             <td>所有者</td>
 							<td>开始日期</td>
