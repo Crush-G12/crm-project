@@ -266,4 +266,10 @@
     </foreach>
   </delete>
 
+  <select id="selectActivityById" parameterType="string" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from tbl_activity
+    where id = #{id}
+  </select>
+
 </mapper>

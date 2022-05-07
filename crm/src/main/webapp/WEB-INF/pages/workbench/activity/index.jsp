@@ -188,6 +188,41 @@
 			});
 		});
 
+		//修改市场活动
+		$("#update_activity_btn").click(function (){
+			//获取选中的市场活动（数组）
+			var activityId = $("#tBody input[type='checkbox']:checked");
+			if(activityId.size() > 1){
+				alert("每次只能修改一个市场活动，请重新选择");
+				return;
+			}
+			if(activityId.size() == 0){
+				alert("请先选择市场活动");
+				return;
+			}
+			//获取jQuery对象的值
+			var id = activityId[0].value;
+			//获取id后，查询出市场活动的信息
+			$.ajax({
+				url:"workbench/activity/queryActivityById",
+				data:{id:id},
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					//更改模态窗口的信息（此时模态窗口已经存在，只是没有显示出来）
+					$("#edit-id").val(data.id);
+					$("#edit-marketActivityOwner").val(data.owner);
+					$("#edit-marketActivityName").val(data.name);
+					$("#edit-startTime").val(data.startDate);
+					$("#edit-endTimeTime").val(data.endDate);
+					$("#edit-cost").val(data.cost);
+					$("#edit-describe").val(data.description);
+					//显示模态窗口
+					$("#editActivityModal").modal("show");
+				}
+			});
+		});
+
 	});
 
 
@@ -345,7 +380,7 @@
 				<div class="modal-body">
 				
 					<form class="form-horizontal" role="form">
-					
+						<input type="hidden" id="edit-id">
 						<div class="form-group">
 							<label for="edit-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
@@ -484,7 +519,7 @@
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
 				  <button type="button" class="btn btn-primary" id="createActivity_btn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
+				  <button type="button" class="btn btn-default" data-toggle="modal" id="update_activity_btn"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" class="btn btn-danger" id="delete_activity_btn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				<div class="btn-group" style="position: relative; top: 18%;">

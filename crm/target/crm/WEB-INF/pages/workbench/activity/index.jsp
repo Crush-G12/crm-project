@@ -150,7 +150,83 @@
             }
         })
 
+		//删除市场活动功能
+		//点击删除，提醒用户
+		$("#delete_activity_btn").click(function (){
+			//先获取活动的id
+			var activityIds = $("#tBody input[type='checkbox']:checked");
+			if(activityIds.size() == 0){
+				alert("请先选择市场活动")
+				return;
+			}
+			if(!window.confirm("您确定要删除吗？")){
+				return;
+			}
+			var ids = "";
+			$.each(activityIds,function (){
+				ids += "id=" + this.value + "&";
+			});
+			ids = ids.substr(0,ids.length-1);
+			//使用Ajax发送请求
+			$.ajax({
+				url:"/crm/workbench/activity/deleteActivityByIds",
+				data:ids,
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					//判断是否成功
+					if(data.code == "0"){
+						//失败则提示用户
+						alert(data.message);
+					}else if(data.code == "1"){
+						//成功则刷新页面
+						alert(data.message);
+						var pageSize = $("#pagination").bs_pagination('getOption','rowsPerPage');
+						queryActivityByConditionForPage(1,pageSize);
+					}
+				}
+			});
+		});
+
+		//修改市场活动
+		$("#update_activity_btn").click(function (){
+			//获取选中的市场活动（数组）
+			var activityId = $("#tBody input[type='checkbox']:checked");
+			if(activityId.size() > 1){
+				alert("每次只能修改一个市场活动，请重新选择");
+				return;
+			}
+			if(activityId.size() == 0){
+				alert("请先选择市场活动");
+				return;
+			}
+			//获取jQuery对象的值
+			var id = activityId[0].value;
+			//获取id后，查询出市场活动的信息
+			$.ajax({
+				url:"workbench/activity/queryActivityById",
+				data:{id:id},
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					//更改模态窗口的信息（此时模态窗口已经存在，只是没有显示出来）
+					$("#edit-id").val(data.id);
+					$("#edit-marketActivityOwner").val(data.owner);
+					$("#edit-marketActivityName").val(data.name);
+					$("#edit-startTime").val(data.startDate);
+					$("#edit-endTimeTime").val(data.endDate);
+					$("#edit-cost").val(data.cost);
+					$("#edit-describe").val(data.description);
+					//显示模态窗口
+					$("#editActivityModal").modal("show");
+				}
+			});
+		});
+
 	});
+
+
+	//封装成函数
 
 	function queryActivityByConditionForPage(pageNo,pageSize){
 		//收集参数
@@ -304,7 +380,7 @@
 				<div class="modal-body">
 				
 					<form class="form-horizontal" role="form">
-					
+						<input type="hidden" id="edit-id">
 						<div class="form-group">
 							<label for="edit-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
@@ -443,8 +519,8 @@
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
 				  <button type="button" class="btn btn-primary" id="createActivity_btn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-default" data-toggle="modal" id="update_activity_btn"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
+				  <button type="button" class="btn btn-danger" id="delete_activity_btn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				<div class="btn-group" style="position: relative; top: 18%;">
                     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importActivityModal" ><span class="glyphicon glyphicon-import"></span> 上传列表数据（导入）</button>

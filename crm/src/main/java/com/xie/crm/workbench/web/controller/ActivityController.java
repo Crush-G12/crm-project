@@ -118,4 +118,11 @@ public class ActivityController {
         return returnObject;
     }
 
+    @RequestMapping(value = "/workbench/activity/queryActivityById")
+    @ResponseBody
+    public Object queryActivityById(String id){
+        Activity activity = activityService.queryActivityById(id);
+        return activity;
+    }
+
 }
