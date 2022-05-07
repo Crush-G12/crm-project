@@ -150,7 +150,48 @@
             }
         })
 
+		//删除市场活动功能
+		//点击删除，提醒用户
+		$("#delete_activity_btn").click(function (){
+			//先获取活动的id
+			var activityIds = $("#tBody input[type='checkbox']:checked");
+			if(activityIds.size() == 0){
+				alert("请先选择市场活动")
+				return;
+			}
+			if(!window.confirm("您确定要删除吗？")){
+				return;
+			}
+			var ids = "";
+			$.each(activityIds,function (){
+				ids += "id=" + this.value + "&";
+			});
+			ids = ids.substr(0,ids.length-1);
+			//使用Ajax发送请求
+			$.ajax({
+				url:"/crm/workbench/activity/deleteActivityByIds",
+				data:ids,
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					//判断是否成功
+					if(data.code == "0"){
+						//失败则提示用户
+						alert(data.message);
+					}else if(data.code == "1"){
+						//成功则刷新页面
+						alert(data.message);
+						var pageSize = $("#pagination").bs_pagination('getOption','rowsPerPage');
+						queryActivityByConditionForPage(1,pageSize);
+					}
+				}
+			});
+		});
+
 	});
+
+
+	//封装成函数
 
 	function queryActivityByConditionForPage(pageNo,pageSize){
 		//收集参数
@@ -444,7 +485,7 @@
 				<div class="btn-group" style="position: relative; top: 18%;">
 				  <button type="button" class="btn btn-primary" id="createActivity_btn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-danger" id="delete_activity_btn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				<div class="btn-group" style="position: relative; top: 18%;">
                     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importActivityModal" ><span class="glyphicon glyphicon-import"></span> 上传列表数据（导入）</button>

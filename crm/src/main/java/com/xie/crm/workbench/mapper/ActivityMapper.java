@@ -69,4 +69,8 @@ public interface ActivityMapper {
      */
     int selectCountOfActivityByCondition(Map<String,Object> map);
 
+    /**
+     * 根据id删除市场活动
+     */
+    int deleteActivityByIds(String[] ids);
 }
