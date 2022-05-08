@@ -80,4 +80,12 @@ public interface ActivityMapper {
      * @return
      */
     Activity selectActivityById(String id);
+
+
+    /**
+     * 修改市场活动
+     * @param activity
+     * @return
+     */
+    int updateActivity(Activity activity);
 }

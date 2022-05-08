@@ -125,4 +125,37 @@ public class ActivityController {
         return activity;
     }
 
+
+    @RequestMapping(value = "/workbench/activity/saveEditActivity")
+    @ResponseBody
+    public Object saveEditActivity(Activity activity,HttpSession session) {
+        //获取参数，封装参数
+        //生成创建时间
+        activity.setEditTime(DateUtils.formatDateTime(new Date()));
+        //获取作者的id
+        User user = (User) session.getAttribute(Contants.SESSION_USER);
+        activity.setEditBy(user.getId());
+        //修改市场活动，生成响应信息
+        ReturnObject returnObject = new ReturnObject();
+        int result = 0;
+        try {
+            result = activityService.saveEditActivity(activity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            returnObject.setCode(Contants.CODE_FAIL);
+            returnObject.setMessage("系统繁忙，请稍后再试...");
+        }
+
+        if (result > 0) {
+            //修改成功
+            returnObject.setCode(Contants.CODE_SUCCESS);
+            returnObject.setMessage("修改成功");
+        }else {
+            //修改失败
+            returnObject.setCode(Contants.CODE_FAIL);
+            returnObject.setMessage("系统繁忙，请稍后再试...");
+        }
+
+        return returnObject;
+    }
 }

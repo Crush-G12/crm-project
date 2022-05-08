@@ -188,7 +188,7 @@
 			});
 		});
 
-		//修改市场活动
+		//修改市场活动(显示模态窗口)
 		$("#update_activity_btn").click(function (){
 			//获取选中的市场活动（数组）
 			var activityId = $("#tBody input[type='checkbox']:checked");
@@ -214,11 +214,73 @@
 					$("#edit-marketActivityOwner").val(data.owner);
 					$("#edit-marketActivityName").val(data.name);
 					$("#edit-startTime").val(data.startDate);
-					$("#edit-endTimeTime").val(data.endDate);
+					$("#edit-endTime").val(data.endDate);
 					$("#edit-cost").val(data.cost);
 					$("#edit-describe").val(data.description);
 					//显示模态窗口
 					$("#editActivityModal").modal("show");
+				}
+			});
+		});
+
+		//保存修改市场活动
+		$("#saveEditActivity_btn").click(function (){
+			//表单验证，获取参数
+			var id = $("#edit-id").val();
+			var owner = $("#edit-marketActivityOwner").val();
+			var name = $.trim($("#edit-marketActivityName").val());
+			var startDate = $("#edit-startTime").val();
+			var endDate = $("#edit-endTime").val();
+			var cost = $.trim($("#edit-cost").val());
+			var description = $.trim($("#edit-describe").val());
+			//发送请求之前，进行表单验证
+			if(owner == ""){
+				alert("所有者不能为空");
+				return;
+			}
+			if(name == ""){
+				alert("名称不能为空");
+				return;
+			}
+			if(startDate != "" && endDate != ""){
+				//比较字符串的大小
+				if(startDate>endDate){
+					alert("结束日期不能比开始日期小");
+					return;
+				}
+			}else {
+				alert("日期不能为空");
+				return;
+			}
+			//成本是非负整数
+			var regExp = /^(([1-9]\d*)|0)$/;
+			if(!regExp.test(cost)){
+				alert("成本只能是非负整数");
+				return;
+			}
+			//Ajax给后台发送请求
+			$.ajax({
+				url:'/crm/workbench/activity/saveEditActivity',
+				data:{
+					id:id,owner:owner,name:name,startDate:startDate,endDate:endDate,
+					cost:cost,description:description
+				},
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					if(data.code == "1"){
+						//成功之后，关闭模态窗口
+						$("#editActivityModal").modal("hide");
+						//刷新市场活动
+						var pageSize = $("#pagination").bs_pagination('getOption','rowsPerPage');
+						var pageNo = $("#pagination").bs_pagination('getOption','currentPage');
+						queryActivityByConditionForPage(pageNo,pageSize);
+					}else {
+						//失败之后，提示信息
+						alert(data.message);
+						//模态窗口不关闭
+						$("#editActivityModal").modal("show");
+					}
 				}
 			});
 		});
@@ -399,11 +461,11 @@
 						<div class="form-group">
 							<label for="edit-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-startTime" value="2020-10-10">
+								<input type="text" class="form-control addDate" id="edit-startTime" value="" readonly>
 							</div>
 							<label for="edit-endTime" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-endTime" value="2020-10-20">
+								<input type="text" class="form-control addDate" id="edit-endTime" value="" readonly>
 							</div>
 						</div>
 						
@@ -426,7 +488,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">更新</button>
+					<button type="button" class="btn btn-primary" id="saveEditActivity_btn">更新</button>
 				</div>
 			</div>
 		</div>
