@@ -285,6 +285,11 @@
 			});
 		});
 
+		//批量导出
+		$("#exportActivityAllBtn").click(function (){
+			window.location.href = "/crm/workbench/activity/exportAllActivities";
+		});
+
 	});
 
 

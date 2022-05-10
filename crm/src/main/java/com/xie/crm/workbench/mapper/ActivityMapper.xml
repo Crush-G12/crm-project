@@ -279,5 +279,14 @@
     where id = #{id}
   </update>
 
+  <select id="selectAllActivities" resultMap="BaseResultMap">
+    select a.id,b.name as owner,a.name,a.start_date,a.end_date,a.cost,
+           a.description,c.name as create_by,a.create_by,a.edit_time,c.name as edit_by
+    from tbl_activity a
+           join tbl_user b on a.owner = b.id
+           join tbl_user c on a.create_by = c.id
+           left join tbl_user d on a.edit_by = d.id
+  </select>
+
 
 </mapper>
