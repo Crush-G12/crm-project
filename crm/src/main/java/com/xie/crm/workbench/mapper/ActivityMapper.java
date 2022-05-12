@@ -94,4 +94,11 @@ public interface ActivityMapper {
      * @return
      */
     List<Activity> selectAllActivities();
+
+    /**
+     * 批量插入市场活动
+     * @param activityList
+     * @return
+     */
+    int insertActivityByList(List<Activity> activityList);
 }

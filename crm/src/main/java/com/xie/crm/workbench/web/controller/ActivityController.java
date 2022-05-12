@@ -3,6 +3,7 @@ package com.xie.crm.workbench.web.controller;
 import com.xie.crm.commons.contants.Contants;
 import com.xie.crm.commons.domain.ReturnObject;
 import com.xie.crm.commons.utils.DateUtils;
+import com.xie.crm.commons.utils.HSSFUtils;
 import com.xie.crm.commons.utils.UUIDUtils;
 import com.xie.crm.settings.domain.User;
 import com.xie.crm.settings.service.UserService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -291,5 +293,82 @@ public class ActivityController {
         os.flush();
         workbook.close();
 
+    }
+
+    @RequestMapping(value = "/workbench/activity/fileUpload")
+    @ResponseBody
+    public Object fileUpload( MultipartFile file) throws Exception{
+
+        String originalFilename = file.getOriginalFilename();
+        File f = new File("C:\\Users\\Admin\\Desktop\\Java\\SSM项目实战\\ServerDir\\",originalFilename);
+        file.transferTo(f);
+
+        ReturnObject returnObject = new ReturnObject();
+        returnObject.setCode(Contants.CODE_SUCCESS);
+        returnObject.setMessage("上传成功");
+        return returnObject;
+    }
+
+    @RequestMapping(value = "/workbench/activity/importActivity")
+    @ResponseBody
+    public Object importActivity(MultipartFile activityFile,HttpSession session){
+        //将数据保存到List中
+        List<Activity> activityList = new ArrayList<>();
+        ReturnObject returnObject = new ReturnObject();
+        try {
+            //将文件保存到磁盘上
+            String originalFilename = activityFile.getOriginalFilename();
+            File file = new File("C:\\Users\\Admin\\Desktop\\Java\\SSM项目实战\\ServerDir\\",originalFilename);
+            activityFile.transferTo(file);
+            //使用apache-poi获取文件的数据
+            InputStream is = new FileInputStream("C:\\Users\\Admin\\Desktop\\Java\\SSM项目实战\\ServerDir\\" + originalFilename);
+            HSSFWorkbook  workbook = new HSSFWorkbook(is);
+            //获取页
+            HSSFSheet sheet = workbook.getSheetAt(0);
+            //获取行
+            HSSFRow row = null;
+            HSSFCell cell = null;
+            List<Activity> list = new ArrayList<>();
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                row = sheet.getRow(i);
+                Activity activity = new Activity();
+                activity.setId(UUIDUtils.getUUID());
+                User user = (User) session.getAttribute(Contants.SESSION_USER);
+                activity.setOwner(user.getId());
+                //获取列
+                for (int j = 0; j <row.getLastCellNum(); j++) {
+                    cell = row.getCell(j);
+                    //使用工具类，获取每一列的数据
+                    String str = HSSFUtils.getCellValueToStr(cell);
+                    if (j==0){
+                        activity.setName(str);
+                    }else if(j==1){
+                        activity.setStartDate(str);
+                    }else if(j==2){
+                        activity.setEndDate(str);
+                    }else if(j==3){
+                        activity.setCost(str);
+                    }else if(j==4){
+                        activity.setDescription(str);
+                    }
+                }
+                //创建者，创建时间自动生成
+                activity.setCreateBy(user.getId());
+                activity.setCreateTime(DateUtils.formatDateTime(new Date()));
+                //将市场活动保存到List中
+                list.add(activity);
+            }
+            //封装好之后，调用Service层方法
+            int result = activityService.saveCreateActivityByList(list);
+            //生成返回数据
+            returnObject.setCode(Contants.CODE_SUCCESS);
+            returnObject.setRetData(result);
+        } catch (IOException e) {
+            e.printStackTrace();
+            returnObject.setCode(Contants.CODE_FAIL);
+            returnObject.setMessage("系统繁忙，请稍后再试...");
+        }
+
+        return returnObject;
     }
 }

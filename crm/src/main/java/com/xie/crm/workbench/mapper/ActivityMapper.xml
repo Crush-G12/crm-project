@@ -288,5 +288,16 @@
            left join tbl_user d on a.edit_by = d.id
   </select>
 
+  <insert id="insertActivityByList" parameterType="com.xie.crm.workbench.domain.Activity">
+    insert into tbl_activity (id, owner, name, start_date,end_date, cost, description,create_time, create_by)
+    values
+    <foreach collection="list" item="item" index="0" separator="," >
+      (#{item.id}, #{item.owner}, #{item.name}, #{item.startDate},
+      #{item.endDate}, #{item.cost}, #{item.description},
+      #{item.createTime}, #{item.createBy})
+    </foreach>
+  </insert>
+
+
 
 </mapper>

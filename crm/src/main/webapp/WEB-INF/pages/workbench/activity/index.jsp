@@ -290,6 +290,52 @@
 			window.location.href = "/crm/workbench/activity/exportAllActivities";
 		});
 
+		//导入市场活动
+		$("#importActivityBtn").click(function (){
+			//通过文件名做表单验证
+			var fileName = $("#activityFile").val();
+			var lastName = fileName.substr(fileName.lastIndexOf("."));
+			lastName = lastName.toLowerCase();
+			if(lastName != ".xls"){
+				//后缀名不正确，拦截
+				alert("文件格式只支持.xls")
+				return;
+			}
+			//获取文件
+			var activityFile = $("#activityFile")[0].files[0];
+			//大小不超过5M
+			if(activityFile.size > 5*1024*1024){
+				alert("文件大小不能超过5M")
+				return;
+			}
+			//发送请求
+			var formData = new FormData;
+			formData.append("activityFile",activityFile);
+			$.ajax({
+				url:"/crm/workbench/activity/importActivity",
+				data:formData,
+				//是否将参数转化为字符串格式，默认为true
+				processData:false,
+				//是否将参数统一用urlEncoded编码，默认为true
+				contentType:false,
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					if(data.code == "1"){
+						alert("成功导入" + data.retData + "条记录");
+						//关闭模态窗口
+						$("#importActivityModal").modal("hide");
+						//刷新列表
+						var pageSize = $("#pagination").bs_pagination('getOption','rowsPerPage');
+						queryActivityByConditionForPage(1,pageSize);
+					}else {
+						alert(data.message);
+						$("#importActivityModal").modal("show");
+					}
+				}
+			});
+		});
+
 	});
 
 
