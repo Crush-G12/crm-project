@@ -298,6 +298,14 @@
     </foreach>
   </insert>
 
-
+  <select id="selectActivityForDetailById" parameterType="string" resultMap="BaseResultMap">
+    select a.id,b.name as owner,a.name,a.start_date,a.end_date,a.cost,a.description,
+           a.create_time,c.name as create_by,a.edit_time,d.name as edit_by
+    from tbl_activity a
+    join tbl_user b on a.owner = b.id
+    join tbl_user c on a.create_by = c.id
+    left join tbl_user d on a.edit_by = d.id
+    where a.id=#{id}
+  </select>
 
 </mapper>

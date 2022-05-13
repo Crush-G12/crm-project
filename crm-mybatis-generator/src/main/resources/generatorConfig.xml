@@ -89,13 +89,12 @@
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">
         </table>
-
-        <table tableName="tbl_clue_remark" domainObjectName="ClueRemark"
+        -->
+        <!--<table tableName="tbl_clue_remark" domainObjectName="ClueRemark"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">
-        </table>
-        -->
+        </table>-->
         <!--
         <table tableName="tbl_contacts" domainObjectName="Contacts"
                enableCountByExample="false" enableUpdateByExample="false"
@@ -141,19 +140,19 @@
                 </table>
 
         -->
-                <table tableName="tbl_activity" domainObjectName="Activity"
+                <!--<table tableName="tbl_activity" domainObjectName="Activity"
+                       enableCountByExample="false" enableUpdateByExample="false"
+                       enableDeleteByExample="false" enableSelectByExample="false"
+                       selectByExampleQueryId="false">
+                </table>-->
+
+
+                <table tableName="tbl_activity_remark" domainObjectName="ActivityRemark"
                        enableCountByExample="false" enableUpdateByExample="false"
                        enableDeleteByExample="false" enableSelectByExample="false"
                        selectByExampleQueryId="false">
                 </table>
 
-        <!--
-                <table tableName="tbl_marketing_activities_remark" domainObjectName="MarketingActivitiesRemark"
-                       enableCountByExample="false" enableUpdateByExample="false"
-                       enableDeleteByExample="false" enableSelectByExample="false"
-                       selectByExampleQueryId="false">
-                </table>
-                 -->
 
 <!--        <table tableName="tbl_transaction" domainObjectName="Transaction"-->
 <!--               enableCountByExample="false" enableUpdateByExample="false"-->

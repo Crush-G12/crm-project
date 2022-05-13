@@ -8,11 +8,13 @@ import com.xie.crm.commons.utils.UUIDUtils;
 import com.xie.crm.settings.domain.User;
 import com.xie.crm.settings.service.UserService;
 import com.xie.crm.workbench.domain.Activity;
+import com.xie.crm.workbench.service.ActivityRemarkService;
 import com.xie.crm.workbench.service.ActivityService;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,10 +31,13 @@ import java.util.*;
 @Controller
 public class ActivityController {
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    ActivityService activityService;
+    private ActivityService activityService;
+
+    @Autowired
+    private ActivityRemarkService activityRemarkService;
 
     @RequestMapping(value = "/workbench/activity/index")
     public String index(HttpServletRequest request){
@@ -317,12 +322,14 @@ public class ActivityController {
         ReturnObject returnObject = new ReturnObject();
         try {
             //将文件保存到磁盘上
-            String originalFilename = activityFile.getOriginalFilename();
+            /*String originalFilename = activityFile.getOriginalFilename();
             File file = new File("C:\\Users\\Admin\\Desktop\\Java\\SSM项目实战\\ServerDir\\",originalFilename);
-            activityFile.transferTo(file);
+            activityFile.transferTo(file);*/
+            //优化代码：直接获取输入流，不用往磁盘上写数据
+            InputStream inputStream = activityFile.getInputStream();
             //使用apache-poi获取文件的数据
-            InputStream is = new FileInputStream("C:\\Users\\Admin\\Desktop\\Java\\SSM项目实战\\ServerDir\\" + originalFilename);
-            HSSFWorkbook  workbook = new HSSFWorkbook(is);
+            //InputStream is = new FileInputStream("C:\\Users\\Admin\\Desktop\\Java\\SSM项目实战\\ServerDir\\" + originalFilename);
+            HSSFWorkbook  workbook = new HSSFWorkbook(inputStream);
             //获取页
             HSSFSheet sheet = workbook.getSheetAt(0);
             //获取行
@@ -370,5 +377,17 @@ public class ActivityController {
         }
 
         return returnObject;
+    }
+
+    @RequestMapping(value = "/workbench/activity/queryActivityForDetail")
+    public String queryActivityForDetail(String id,HttpServletRequest request){
+        //查询数据
+        Activity activity = activityService.queryActivityForDetailById(id);
+        List<Activity> remarkList = activityRemarkService.queryActivityRemarkForDetailByActivityId(id);
+        //放到作用域
+        request.setAttribute("activity",activity);
+        request.setAttribute("remarkList",remarkList);
+        //请求转发
+        return "workbench/activity/detail";
     }
 }
