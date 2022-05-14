@@ -11,4 +11,8 @@ public class Contants {
 
     //当前用户的key
     public static final String SESSION_USER = "sessionUser";
+
+    //备注的修改标记，0表示没修改，1表示已经修改
+    public static final String REMARK_EDIT_FLAG_NO_EDIT = "0";
+    public static final String REMARK_EDIT_FLAG_YES_EDIT = "1";
 }
