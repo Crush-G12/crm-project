@@ -182,5 +182,9 @@
             #{editBy},#{editFlag},#{activityId})
   </insert>
 
+  <delete id="deleteActivityRemarkById" parameterType="string">
+    delete from tbl_activity_remark
+    where id = #{id}
+  </delete>
 
 </mapper>

@@ -60,4 +60,31 @@ public class ActivityRemarkController {
             return returnObject;
         }
     }
+
+    @RequestMapping(value = "/workbench/activity/deleteActivityRemark")
+    @ResponseBody
+    public Object deleteActivityRemark(String id){
+        //执行删除业务
+        int result = 0;
+        ReturnObject returnObject = new ReturnObject();
+        try {
+            result = activityRemarkService.deleteActivityRemarkById(id);
+            if(result > 0){
+                //删除成功
+                returnObject.setCode(Contants.CODE_SUCCESS);
+            }else {
+                //删除失败
+                returnObject.setCode(Contants.CODE_FAIL);
+                returnObject.setMessage("系统繁忙，请稍后再试...");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            //删除失败
+            returnObject.setCode(Contants.CODE_FAIL);
+            returnObject.setMessage("系统繁忙，请稍后再试...");
+        }
+
+        return returnObject;
+    }
+
 }
